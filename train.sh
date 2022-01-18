@@ -6,16 +6,16 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=4
 #SBATCH --job-name=bwe_progressive_half_size
-##SBATCH  --gres=gpu:a100:1
+#SBATCH  --gres=gpu:a100:1
 ##SBATCH  --gres=gpu:1 --constraint=volta
 ##SBATCH  --gres=gpu:1 
-#SBATCH  --gres=gpu:1 --exclude=gpu[20-27]
+##SBATCH  --gres=gpu:1 --exclude=gpu[20-27]
 ##SBATCH  --gres=gpu:1 --exclude=gpu[20-27]
 ##SBATCH  --gres=gpu:4 
 ##SBATCH  --gres=gpu:3 --constraint=volta
 ##SBATCH --output=/scratch/work/%u/unet_dir/unet_historical_music/experiments/23062021_metrics_mae/training_mse%j.out
 #SBATCH --output=/scratch/work/%u/unet_dir/bwe_historical_recordings/experiments/%a_training_%j.out
-#SBATCH --array=[41]
+#SBATCH --array=[2]
 
 # ..mem=80G
 module load anaconda 

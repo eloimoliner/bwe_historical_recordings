@@ -1,0 +1,132 @@
+defaults:
+  - dset: dataset
+
+path_experiment: "non-specified_name" #there should be a better way to do this 
+tensorboard_logs: "/scratch/work/molinee2/tensorboard_logs/bwe_exps" #path with tensorboard
+# Dataset related
+fs: 22050  #default is 44100, better NEVER change
+seg_len_s_train: 5 #length of the train (and val) segments in seconds
+seg_len_s_val: 5 #length of the train (and val) segments in seconds
+seg_len_s_test: 5 #length of the train (and val) segments in seconds
+freq_inference: 10 #we do inference after * epochs
+num_val_audios: 4 #number of audios to inference in validation and save in tensorboard
+freq_save: 10 #we save the model after x iteration
+
+num_real_test_segments: 5 #number of real recordings inferenced every epoch
+num_test_segments: 15
+buffer_size: 1000 # buffer size for shuffling datasets (train and val)
+# Dataset Augmentation
+overlap: 0   #overlap when extracting audio segments, default is 0, augment if more data is needed
+
+# Logging and printing, and does not impact training
+#device: cuda
+verbose: 0
+use_tensorboard: True
+
+
+num_workers: 10
+
+
+# Checkpointing, by default automatically load last checkpoint
+checkpoint: "checkpoint_149"
+continue_from: '' # Path the a checkpoint.th file to start from.
+                  # this is not used in the name of the experiment!
+                  # so use a dummy=something not to mixup experiments.
+continue_best: false  # continue from best, not last state if continue_from is set.
+only_inference: false
+
+# Optimization related
+optim: adam
+lr: 1e-4 #used
+beta1: 0.5 #used
+beta2: 0.9 #used
+
+epochs: 150
+batch_size: 2
+batch_size_val: 2
+batch_size_test: 1
+minibatches: 1
+val_take: -1
+steps_per_epoch: 2000
+
+denoiser:
+  checkpoint: "please specify this path parameter" 
+
+#STFT parameteres
+stft:
+  win_size: 1024     #STFT window size
+  hop_size:  256
+
+#inference param
+inference:
+  exp_name: "noname"
+  apply_lpf: False
+  use_butter_filter: False
+  no_filter: False
+  fc: 3500
+  audio: None
+# Models
+model: unet # either demucs or dwave
+
+unet1d:
+  depth: 8
+
+unet_generator:
+  activation: "elu"
+  use_weight_norm: True
+  use_SAM: True
+  use_fencoding: True
+  num_tfc: 3
+  num_stages: 1
+  depth: 6
+  f_dim: 513 #reduced vesion #hardcoded, depends on the stft window
+  Ns: [64,128,128,128,256,512,512,512]
+  ksize_init: [7,7]
+  ksize_encoder: [3,3]
+  ksize_hc: [7,7]
+  ksize_decoder: [3,3]
+  ksize_bn: [3,3]
+
+
+bwe:
+  use_msd_disc: True
+  use_NLDs: False
+  lpf:
+    mean_fc: 3500
+    std_fc: 300
+    num_random_filters: 300
+    filters_csv: "/scratch/work/molinee2/unet_dir/bwe_pytorch/butter_filters.csv"
+  add_noise:
+    add_noise: True
+    power: .001
+  lambda_adv: 0.25
+  lambda_gp: 10
+  lambda_freq_loss: 0.1
+  lambda_l1_loss: 0 #l1 loss only for low-passed
+  lambda_l2_loss: 0 #l1 loss only for low-passed
+  adv_loss: "LS" #"LS", "hinge" try also "WGANGP"
+  use_mse_loss: False
+  repeat_disc_training: 2
+  epochs_in_stage_l1: 5
+  lr_gen_l1: 1e-4
+  lr_gen_l2: 1e-5
+  lr_dis_l2: 1e-4
+  discriminators:
+    variant: "hifigan"
+    adamD:
+      beta1: 0.5
+      beta2: 0.9
+  generator:
+    variant: "unet2d"   #"audiounet", "seanet", "unet2d"
+
+# Hydra config
+hydra:
+  job:
+    config:
+      # configuration for the ${hydra.job.override_dirname} runtime variable
+      override_dirname:
+        kv_sep: '='
+        item_sep: ','
+        # Remove all paths, as the / in them would mess up things
+        exclude_keys: ['path_experiment',
+          'hydra.job_logging.handles.file.filename']

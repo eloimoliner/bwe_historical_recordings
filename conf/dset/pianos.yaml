@@ -1,0 +1,13 @@
+path_music_train: [ "/scratch/work/molinee2/datasets/CCMD/train_pianos_22k"]
+path_music_validation: ["/scratch/work/molinee2/datasets/CCMD/validation_pianos_22k"]
+path_music_test: ["/scratch/work/molinee2/datasets/CCMD/test"]
+
+#path_test: ["/scratch/work/molinee2/datasets/CCMD/test/pianos_22k"]
+path_test: ["/scratch/work/molinee2/datasets/CCMD/test/pianos_22k_full"]
+#path_strings_test: ["/scratch/work/molinee2/datasets/CCMD/test/strings"]
+#path_orchestra_test: ["/scratch/work/molinee2/datasets/CCMD/test/orchestra"]
+#path_opera_test: ["/scratch/work/molinee2/datasets/CCMD/test/opera"]
+
+path_noise: "/scratch/work/molinee2/datasets/GRND" #path with noise samples. There must be an info.csv file there
+path_recordings: "/scratch/work/molinee2/datasets/real_noisy_data_test/test_bwe_pianos_22k" #path with real noisy recordings. There must be an audio_files.txt file there
+      
