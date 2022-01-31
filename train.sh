@@ -22,7 +22,7 @@ module load anaconda
 source activate /scratch/work/molinee2/conda_envs/bwe_test
 export TORCH_USE_RTLD_GLOBAL=YES
 
-n=1
+n=2
 #n=2
 iteration=`sed -n "${n} p" iteration_parameters.txt`      # Get n-th line (2-indexed) of the file
 

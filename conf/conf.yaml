@@ -1,7 +1,8 @@
 defaults:
   - dset: dataset
 
-path_experiment: "non-specified_name" #there should be a better way to do this 
+path_experiment: "/scratch/work/molinee2/unet_dir/bwe_historical_recordings/experiments/piano" #there should be a better way to do this 
+path_experiment_denoiser: "/scratch/work/molinee2/unet_dir/bwe_historical_recordings/experiments_denoiser/pretrained_model" #there should be a better way to do this 
 tensorboard_logs: "/scratch/work/molinee2/tensorboard_logs/bwe_exps" #path with tensorboard
 # Dataset related
 fs: 22050  #default is 44100, better NEVER change
@@ -29,6 +30,7 @@ num_workers: 10
 
 # Checkpointing, by default automatically load last checkpoint
 checkpoint: "checkpoint_149"
+checkpoint_denoiser: "checkpoint_29"
 continue_from: '' # Path the a checkpoint.th file to start from.
                   # this is not used in the name of the experiment!
                   # so use a dummy=something not to mixup experiments.
@@ -49,8 +51,8 @@ minibatches: 1
 val_take: -1
 steps_per_epoch: 2000
 
-denoiser:
-  checkpoint: "please specify this path parameter" 
+#denoiser:
+#  checkpoint: "please specify this path parameter" 
 
 #STFT parameteres
 stft:
@@ -87,6 +89,19 @@ unet_generator:
   ksize_decoder: [3,3]
   ksize_bn: [3,3]
 
+denoiser:
+  activation: "elu"
+  use_csff: False
+  use_SAM: True
+  use_cam: False
+  use_fam: False
+  use_fencoding: True
+  use_tdf: False
+  use_alttdfs: False
+  num_tfc: 3
+  num_stages: 2
+  depth: 6
+  f_dim: 513 #hardcoded, depends on the stft window
 
 bwe:
   use_msd_disc: True
