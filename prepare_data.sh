@@ -1,7 +1,7 @@
 #!/bin/bash
 #Downlad audio examples
 wget https://github.com/eloimoliner/bwe_historical_recordings/releases/download/v0.0-alpha/audio_examples.zip
-unzip audio_examples.zip -d /audio_examples
+unzip audio_examples.zip -d audio_examples
 
 #Download checkpoints BEHM-GAN
 wget https://github.com/eloimoliner/bwe_historical_recordings/releases/download/v0.0-alpha/checkpoint_piano
