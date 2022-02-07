@@ -1,5 +1,5 @@
 defaults:
-  - dset: dataset
+  - dset: pianos
 
 path_experiment: "/scratch/work/molinee2/unet_dir/bwe_historical_recordings/experiments/piano" #there should be a better way to do this 
 path_experiment_denoiser: "/scratch/work/molinee2/unet_dir/bwe_historical_recordings/experiments_denoiser/pretrained_model" #there should be a better way to do this 
@@ -7,7 +7,7 @@ tensorboard_logs: "/scratch/work/molinee2/tensorboard_logs/bwe_exps" #path with 
 # Dataset related
 fs: 22050  #default is 44100, better NEVER change
 seg_len_s_train: 5 #length of the train (and val) segments in seconds
-seg_len_s_val: 5 #length of the train (and val) segments in seconds
+seg_len_s_val: 2 #length of the train (and val) segments in seconds
 seg_len_s_test: 5 #length of the train (and val) segments in seconds
 freq_inference: 10 #we do inference after * epochs
 num_val_audios: 4 #number of audios to inference in validation and save in tensorboard
@@ -25,7 +25,7 @@ verbose: 0
 use_tensorboard: True
 
 
-num_workers: 10
+num_workers: 4
 
 
 # Checkpointing, by default automatically load last checkpoint
@@ -39,12 +39,16 @@ only_inference: false
 
 # Optimization related
 optim: adam
-lr: 1e-4 #used
+lr: 2e-4 #used
 beta1: 0.5 #used
 beta2: 0.9 #used
 
+#just for the denoiser
+variable_lr: True 
+
 epochs: 150
-batch_size: 2
+batch_size: 4
+multi_batch: 1
 batch_size_val: 2
 batch_size_test: 1
 minibatches: 1
@@ -117,7 +121,6 @@ bwe:
     add_noise: True
     power: .001
   lambda_adv: 0.25
-  lambda_gp: 10
   lambda_freq_loss: 0.1
   lambda_l1_loss: 0 #l1 loss only for low-passed
   lambda_l2_loss: 0 #l1 loss only for low-passed
@@ -129,7 +132,6 @@ bwe:
   lr_gen_l2: 1e-5
   lr_dis_l2: 1e-4
   discriminators:
-    variant: "hifigan"
     adamD:
       beta1: 0.5
       beta2: 0.9

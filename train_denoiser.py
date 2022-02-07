@@ -119,13 +119,13 @@ def run(args):
 
             noisyF, cleanF=do_stft(noisy, clean)
 
-            if args.unet.num_stages==1:     
+            if args.denoiser.num_stages==1:     
                 y_predF_s1=unet_model(noisyF)
 
                 loss_s1=loss(y_predF_s1,cleanF)
         
                 loss_total=loss_s1.mean()
-            elif args.unet.num_stages>1:
+            elif args.denoiser.num_stages>1:
                 y_predF_s2,y_predF_s1=unet_model(noisyF)
                 
                 loss_s1=loss(y_predF_s1,cleanF)

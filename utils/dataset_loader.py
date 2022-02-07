@@ -14,6 +14,89 @@ import torch
 
 #generator function. It reads the csv file with pandas and loads the largest audio segments from each recording. If extend=False, it will only read the segments with length>length_seg, trim them and yield them with no further processing. Otherwise, if the segment length is inferior, it will extend the length using concatenative synthesis.
 
+def noise_sample_generator(info_file,fs, length_seq, split, seed=43):
+    random.seed(seed)
+    head=os.path.split(info_file)[0]
+    load_data=pd.read_csv(info_file)
+    #split= train, validation, test
+    load_data_split=load_data.loc[load_data["split"]==split]
+    load_data_split=load_data_split.reset_index(drop=True)
+    while True:
+        r = list(range(len(load_data_split)))
+        if split!="test":
+            random.shuffle(r)
+        for i in r:
+            segments=ast.literal_eval(load_data_split.loc[i,"segments"])
+            if split=="test":
+                loaded_data, Fs=sf.read(os.path.join(head,load_data_split["recording"].loc[i],load_data_split["largest_segment"].loc[i]))
+            else:
+                num=np.random.randint(0,len(segments))
+                loaded_data, Fs=sf.read(os.path.join(head,load_data_split["recording"].loc[i],segments[num]))
+            assert(fs==Fs, "wrong sampling rate")
+
+            yield __extend_sample_by_repeating(loaded_data,fs,length_seq)
+
+def __extend_sample_by_repeating(data, fs,seq_len):        
+
+    rpm=78
+    target_samp=seq_len
+    if len(data.shape)==2:
+        large_data=np.zeros(shape=(target_samp,2))
+    else:
+        large_data=np.zeros(shape=(target_samp,))
+    
+    if len(data)>=target_samp:
+        large_data=data[0:target_samp]
+        return large_data
+    
+
+    bls=(1000*fs)/1000 #hardcoded
+    
+    if len(data.shape)==2:
+        window=np.stack((np.hanning(bls) ,np.hanning(bls)), axis=1) 
+        window_left=window[0:int(bls/2),:]
+        window_right=window[int(bls/2)::,:]
+    if len(data.shape)==1:
+        window=np.hanning(bls) 
+        window_left=window[0:int(bls/2)]
+        window_right=window[int(bls/2)::]
+
+    bls=int(bls/2)
+    
+    rps=rpm/60
+    period=1/rps
+    
+    period_sam=int(period*fs)
+    
+    overhead=len(data)%period_sam
+    
+    if(overhead>bls):
+        complete_periods=(len(data)//period_sam)*period_sam
+    else:
+        complete_periods=(len(data)//period_sam -1)*period_sam
+    
+    
+    a=np.multiply(data[0:bls], window_left)
+    b=np.multiply(data[complete_periods:complete_periods+bls], window_right)
+    c_1=np.concatenate((data[0:complete_periods],b))
+    c_2=np.concatenate((a,data[bls:complete_periods],b))
+    c_3=np.concatenate((a,data[bls::]))
+    
+    large_data[0:complete_periods+bls]=c_1
+    
+    
+    pointer=complete_periods
+    not_finished=True
+    while (not_finished):
+        if target_samp>pointer+complete_periods+bls:
+            large_data[pointer:pointer+complete_periods+bls] +=c_2
+            pointer+=complete_periods
+        else: 
+            large_data[pointer::]+=c_3[0:(target_samp-pointer)]
+            #finish
+            not_finished=False
+
+    return large_data
 
 def generate_real_recordings_data(path_recordings, fs=44100, seg_len_s=15, stereo=False):
 
@@ -393,6 +476,10 @@ class TrainDataset (torch.utils.data.IterableDataset):
             self.train_samples.extend(glob.glob(os.path.join(path ,"*.wav")))
        
         self.seg_len=int(fs*seg_len_s)
+        self.path_noises=path_noises
+        if self.path_noises !=None:
+            noises_info=os.path.join(path_noises,"info.csv")
+            self.noise_generator=noise_sample_generator(noises_info,fs, self.seg_len,  "train", seed=seed) #this will take care of everything
         self.fs=fs
 
     def __iter__(self):
@@ -438,11 +525,36 @@ class TrainDataset (torch.utils.data.IterableDataset):
                     segment=segment.astype('float32')
             
                     scale=np.random.uniform(-6,4)
-            
-                    segment=10.0**(scale/10.0) *segment
-                        
-                    yield  segment
+                    if self.path_noises !=None:
+                        SNRs=np.random.uniform(2,20)
+                        #load noise signal
+                        data_noise= next(self.noise_generator)
 
+                        #data_noise=np.mean(data_noise,axis=1)
+                        #normalize
+                        data_noise=data_noise/np.max(np.abs(data_noise))
+                        new_noise=data_noise #if more processing needed, add here
+                        #load clean data
+                        #configure sizes
+                        #estimate clean signal power
+                        power_clean=np.var(segment)
+                        #estimate noise power
+                        power_noise=np.var(new_noise)
+                        
+                        snr = 10.0**(SNRs/10.0)
+                        
+                        #sum both signals according to snr
+                        summed=segment+np.sqrt(power_clean/(snr*power_noise))*new_noise #not sure if this is correct, maybe revisit later!!
+                        summed=10.0**(scale/10.0) *summed
+                        summed=summed.astype('float32')
+                        segment=10.0**(scale/10.0) *segment
+                        yield summed, segment
+
+                    else:
+                        segment=10.0**(scale/10.0) *segment
+                        yield  segment
+
+             
 
 
 def load_real_test_recordings(buffer_size, path_recordings,   **kwargs):

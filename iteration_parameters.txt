@@ -1,2 +1,0 @@
-dset=pianos batch_size=4 seg_len_s_train=5 batch_size_val=2 seg_len_s_val=5 minibatches=1 steps_per_epoch=10 num_workers=4 freq_inference=1  bwe.epochs_in_stage_l1=0 bwe.generator.variant="unet2d" bwe.lambda_adv=0.25 bwe.repeat_disc_training=2 freq_save=10 bwe.lambda_freq_loss=0.1
-dset=orchestra batch_size=4 seg_len_s_train=5 batch_size_val=2 seg_len_s_val=5 minibatches=1 steps_per_epoch=2000 num_workers=4 freq_inference=100  bwe.epochs_in_stage_l1=5 bwe.generator.variant="unet2d" bwe.lambda_adv=0.25 bwe.repeat_disc_training=2 freq_save=10 bwe.lambda_freq_loss=0.1
