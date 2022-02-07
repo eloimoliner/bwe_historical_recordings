@@ -1,7 +1,7 @@
 #!/bin/bash
 
 module load anaconda 
-source activate /scratch/work/molinee2/conda_envs/bwe_test
+source activate /scratch/work/molinee2/conda_envs/2022_torchot
 
 
 PATH_CKPT=experiments_bwe/piano/checkpoint_piano

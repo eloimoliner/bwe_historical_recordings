@@ -19,7 +19,7 @@
 
 # ..mem=80G
 module load anaconda 
-source activate /scratch/work/molinee2/conda_envs/bwe_test
+source activate /scratch/work/molinee2/conda_envs/2022_torchot
 export TORCH_USE_RTLD_GLOBAL=YES
 #experiment number
 n=3

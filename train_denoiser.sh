@@ -15,7 +15,7 @@
 
 # ..mem=80G
 module load anaconda 
-source activate /scratch/work/molinee2/conda_envs/bwe_test
+source activate /scratch/work/molinee2/conda_envs/2022_torchot
 
 n=$SLURM_ARRAY_TASK_ID
 n=3
