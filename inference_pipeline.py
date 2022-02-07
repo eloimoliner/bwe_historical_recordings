@@ -28,10 +28,10 @@ def run(args):
     import models.seanet as seanet
     import models.denoiser as denoiser
 
-    path_experiment=str(args.path_experiment)
+    #path_experiment=str(args.path_experiment)
 
-    if not os.path.exists(path_experiment):
-        os.makedirs(path_experiment)
+    #if not os.path.exists(path_experiment):
+    #    os.makedirs(path_experiment)
     
     #Loading data. The train dataset object is a generator. The validation dataset is loaded in memory.
 
@@ -48,7 +48,7 @@ def run(args):
     if args.bwe.generator.variant=="unet2d":
         gener_model = unet2d_generator.Unet2d(unet_args=args.unet_generator).to(device)
 
-    checkpoint_filepath=os.path.join(path_experiment,args.checkpoint)
+    checkpoint_filepath=str(args.checkpoint)
        
     gener_model.load_state_dict(torch.load(checkpoint_filepath, map_location=device))
     #print("something went wrong while loading the checkpoint")
