@@ -1,0 +1,3 @@
+batch_size=2 multi_batch=4 seg_len_s_train=5 steps_per_epoch=8000  dset=dataset_22k
+batch_size=2 multi_batch=4 seg_len_s_train=5 steps_per_epoch=8000  dset=dataset_22k
+batch_size=2 multi_batch=4 seg_len_s_train=5 steps_per_epoch=8000  dset=dataset_22k
