@@ -135,34 +135,39 @@ def run(args):
             segment=segment.type(torch.FloatTensor)
             segment=segment.to(device)
             segment=torch.unsqueeze(segment,0)
-            denoised_time=apply_denoiser_model(segment)
-            segment=denoised_time
-            denoised_time=denoised_time[0].detach().cpu().numpy()
+
+            if args.inference.use_denoiser:
+                denoised_time=apply_denoiser_model(segment)
+                segment=denoised_time
+                denoised_time=denoised_time[0].detach().cpu().numpy()
+                #just concatenating with a little bit of OLA
+                if pointer==0:
+                    denoised_time=np.concatenate((denoised_time[0:int(segment_size-overlapsize)], np.multiply(denoised_time[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
+                else:
+                    denoised_time=np.concatenate((np.multiply(denoised_time[0:int(overlapsize)], window_left), denoised_time[int(overlapsize):int(segment_size-overlapsize)], np.multiply(denoised_time[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
+                denoised_data[pointer:pointer+segment_size]=denoised_data[pointer:pointer+segment_size]+denoised_time
 
             if args.inference.apply_lpf:
                 segment=lowpass_utils.apply_butter_lowpass_test(segment,args.inference.fc, args.fs) 
                 xlpf=segment
-
-            pred_time =apply_bwe_model(segment)
-
-            if args.inference.apply_lpf:
-                xlpf=xlpf[0].detach().cpu().numpy()
-
-            if pointer==0:
-                pred_time=np.concatenate((pred_time[0:int(segment_size-overlapsize)], np.multiply(pred_time[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
-                denoised_time=np.concatenate((denoised_time[0:int(segment_size-overlapsize)], np.multiply(denoised_time[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
-                if args.inference.apply_lpf:
+                #just concatenating with a little bit of OLA
+                if pointer==0:
                     xlpf=np.concatenate((xlpf[0:int(segment_size-overlapsize)], np.multiply(xlpf[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
-            else:
-                pred_time=np.concatenate((np.multiply(pred_time[0:int(overlapsize)], window_left), pred_time[int(overlapsize):int(segment_size-overlapsize)], np.multiply(pred_time[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
-                denoised_time=np.concatenate((np.multiply(denoised_time[0:int(overlapsize)], window_left), denoised_time[int(overlapsize):int(segment_size-overlapsize)], np.multiply(denoised_time[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
-                if args.inference.apply_lpf:
+                else:
                     xlpf=np.concatenate((np.multiply(xlpf[0:int(overlapsize)], window_left), xlpf[int(overlapsize):int(segment_size-overlapsize)], np.multiply(xlpf[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
-                
-            denoised_data[pointer:pointer+segment_size]=denoised_data[pointer:pointer+segment_size]+denoised_time
-            bwe_data[pointer:pointer+segment_size]=bwe_data[pointer:pointer+segment_size]+pred_time
-            if args.inference.apply_lpf:
+
+                xlpf=xlpf[0].detach().cpu().numpy()
                 denoised_lpf[pointer:pointer+segment_size]=denoised_lpf[pointer:pointer+segment_size]+xlpf
+
+            if args.inference.use_bwe:
+                pred_time =apply_bwe_model(segment)
+               
+                if pointer==0:
+                    pred_time=np.concatenate((pred_time[0:int(segment_size-overlapsize)], np.multiply(pred_time[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
+                else:
+                    pred_time=np.concatenate((np.multiply(pred_time[0:int(overlapsize)], window_left), pred_time[int(overlapsize):int(segment_size-overlapsize)], np.multiply(pred_time[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
+                    
+                bwe_data[pointer:pointer+segment_size]=bwe_data[pointer:pointer+segment_size]+pred_time
 
             pointer=pointer+segment_size-overlapsize
         else: 
@@ -177,46 +182,44 @@ def run(args):
             segment=segment.type(torch.FloatTensor)
             segment=segment.to(device)
             segment=torch.unsqueeze(segment,0)
-            denoised_time=apply_denoiser_model(segment)
-            segment=denoised_time
-            denoised_time=denoised_time[0].detach().cpu().numpy()
+            if args.inference.use_denoiser:
+                denoised_time=apply_denoiser_model(segment)
+                segment=denoised_time
+                denoised_time=denoised_time[0].detach().cpu().numpy()
+                if pointer!=0:
+                    denoised_time=np.concatenate((np.multiply(denoised_time[0:int(overlapsize)], window_left), denoised_time[int(overlapsize):int(segment_size)]),axis=0)
+                denoised_data[pointer::]=denoised_data[pointer::]+denoised_time[0:lensegment]
+
             if args.inference.apply_lpf:
                 segment=lowpass_utils.apply_butter_lowpass_test(segment,args.inference.fc, args.fs) 
                 xlpf=segment
-            pred_time =apply_bwe_model(segment)
-
-            if args.inference.apply_lpf:
-                xlpf=xlpf[0].detach().cpu().numpy()
-
-            if pointer==0:
-                pred_time=pred_time
-                resl_time=residual_time
-                if args.inference.apply_lpf:
-                    xlpf=xlpf
-            else:
-                pred_time=np.concatenate((np.multiply(pred_time[0:int(overlapsize)], window_left), pred_time[int(overlapsize):int(segment_size)]),axis=0)
-                denoised_time=np.concatenate((np.multiply(denoised_time[0:int(overlapsize)], window_left), denoised_time[int(overlapsize):int(segment_size)]),axis=0)
-                if args.inference.apply_lpf:
+                if pointer!=0:
                     xlpf=np.concatenate((np.multiply(xlpf[0:int(overlapsize)], window_left), xlpf[int(overlapsize):int(segment_size)]),axis=0)
-
-            denoised_data[pointer::]=denoised_data[pointer::]+denoised_time[0:lensegment]
-            bwe_data[pointer::]=bwe_data[pointer::]+pred_time[0:lensegment]
-            if args.inference.apply_lpf:
+                xlpf=xlpf[0].detach().cpu().numpy()
                 denoised_lpf[pointer::]=denoised_lpf[pointer::]+xlpf[0:lensegment]
+
+            if args.inference.use_bwe:
+                pred_time =apply_bwe_model(segment)
+               
+                if pointer!=0:
+                    pred_time=np.concatenate((np.multiply(pred_time[0:int(overlapsize)], window_left), pred_time[int(overlapsize):int(segment_size)]),axis=0)
+               
+                bwe_data[pointer::]=bwe_data[pointer::]+pred_time[0:lensegment]
 
     basename=os.path.splitext(audio)[0]
     wav_noisy_name=basename+"_"+args.inference.exp_name+"_input"+".wav"
     sf.write(wav_noisy_name, data, 22050)
-    wav_output_name=basename+"_"+args.inference.exp_name+"_denoised"+".wav"
-    sf.write(wav_output_name, denoised_data, 22050)
-    wav_output_name=basename+"_"+args.inference.exp_name+"_bwe"+".wav"
-    sf.write(wav_output_name, bwe_data, 22050)
-    #wav_output_name=basename+"_"+args.inference.exp_name+"_bwe_residual"+".wav"
-    #sf.write(wav_output_name, residual_noise, 22050)
-    
+
+    if args.inference.use_denoiser:
+        wav_output_name=basename+"_"+args.inference.exp_name+"_denoised"+".wav"
+        sf.write(wav_output_name, denoised_data, 22050)
+
+    if args.inference.use_bwe:
+        wav_output_name=basename+"_"+args.inference.exp_name+"_bwe"+".wav"
+        sf.write(wav_output_name, bwe_data, 22050)
+
     if args.inference.apply_lpf:
         wav_output_name=basename+"_"+args.inference.exp_name+"_bwe_lpf"+".wav"
-       
         sf.write(wav_output_name, denoised_lpf, 22050)
 
 

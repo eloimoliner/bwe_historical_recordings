@@ -46,7 +46,8 @@ def do_stft(noisy, win_size=2048, hop_size=512, device="cpu"):
     window=window.to(noisy.device)
     noisy=torch.cat((noisy, torch.zeros(noisy.shape[0],win_size).to(noisy.device)),1)
     stft_signal_noisy=torch.stft(noisy, win_size, hop_length=hop_size,window=window,center=False,return_complex=False)
-    stft_signal_noisy=stft_signal_noisy.permute(0,3,2,1)
+    stft_signal_noisy=stft_signal_noisy.permute(0,3,2,1) #shape= (batch_size, R/I, time, freq)
+       
     
     return stft_signal_noisy
 

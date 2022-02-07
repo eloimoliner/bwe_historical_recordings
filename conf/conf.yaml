@@ -62,10 +62,12 @@ stft:
 #inference param
 inference:
   exp_name: "noname"
+  use_denoiser: True
+  use_bwe: True
   apply_lpf: False
   use_butter_filter: False
   no_filter: False
-  fc: 3500
+  fc: 3000
   audio: None
 # Models
 model: unet # either demucs or dwave
