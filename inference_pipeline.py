@@ -48,13 +48,14 @@ def run(args):
     if args.bwe.generator.variant=="unet2d":
         gener_model = unet2d_generator.Unet2d(unet_args=args.unet_generator).to(device)
 
-    checkpoint_filepath=str(args.checkpoint)
+    dirname = os.path.dirname(__file__)
+    checkpoint_filepath = os.path.join(dirname, str(args.checkpoint))
+
        
     gener_model.load_state_dict(torch.load(checkpoint_filepath, map_location=device))
     #print("something went wrong while loading the checkpoint")
 
-    path_experiment_denoiser=str(args.path_experiment_denoiser)
-    checkpoint_filepath_denoiser=os.path.join(path_experiment_denoiser, args.checkpoint_denoiser)
+    checkpoint_filepath_denoiser=os.path.join(dirname,str(args.checkpoint_denoiser))
     unet_model = denoiser.MultiStage_denoise(unet_args=args.denoiser)
     unet_model.load_state_dict(torch.load(checkpoint_filepath_denoiser, map_location=device))
     unet_model.to(device)
@@ -99,9 +100,13 @@ def run(args):
         pred_time=y_g.squeeze(1)
         pred_time=pred_time[0].detach().cpu().numpy()
         return pred_time
-
-    audio=str(args.inference.audio)
-    data, samplerate = sf.read(audio)
+    try:
+        audio=str(args.inference.audio)
+        data, samplerate = sf.read(audio)
+    except:
+        print("reading relative path")
+        audio=os.path.join(dirname,str(args.inference.audio))
+        data, samplerate = sf.read(audio)
     #Stereo to mono
     if len(data.shape)>1:
         data=np.mean(data,axis=1)

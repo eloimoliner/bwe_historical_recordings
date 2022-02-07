@@ -21,7 +21,8 @@ def run(args):
     from tqdm import tqdm
     import numpy as np
 
-    path_experiment=str(args.path_experiment)
+    dirname = os.path.dirname(__file__)
+    path_experiment = os.path.join(dirname, str(args.path_experiment))
 
     if not os.path.exists(path_experiment):
         os.makedirs(path_experiment)
