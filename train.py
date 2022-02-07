@@ -18,13 +18,14 @@ def run(args):
 
     import utils
     #import hifi-gan scripts
-    import  dataset_loader, stft_loss
     import models.discriminators as discriminators
     import models.unet2d_generator as unet2d_generator
     import models.audiounet as audiounet
     import models.seanet as seanet
-    from utils import do_stft
-    import lowpass_utils
+    import utils.utils as utils 
+    import utils.lowpass_utils as lowpass_utils 
+    import  utils.dataset_loader as dataset_loader
+    import  utils.stft_loss as stft_loss
 
     path_experiment=str(args.path_experiment)
 

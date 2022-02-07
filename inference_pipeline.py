@@ -18,15 +18,15 @@ def run(args):
     import scipy
     from tqdm import tqdm
 
-    import utils
-    import  dataset_loader, stft_loss
+    import utils.utils as utils 
+    import utils.lowpass_utils as lowpass_utils 
+    import  utils.dataset_loader as dataset_loader
+    import  utils.stft_loss as stft_loss
     import models.discriminators as discriminators
     import models.unet2d_generator as unet2d_generator
     import models.audiounet as audiounet
     import models.seanet as seanet
     import models.denoiser as denoiser
-    from utils import do_stft
-    import lowpass_utils
 
     path_experiment=str(args.path_experiment)
 
@@ -62,7 +62,7 @@ def run(args):
 
 
     def apply_denoiser_model(segment):
-        segment_TF=do_stft(segment,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
+        segment_TF=utils.do_stft(segment,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
         #segment_TF_ds=tf.data.Dataset.from_tensors(segment_TF)
         with torch.no_grad():
             pred = unet_model(segment_TF)
@@ -84,7 +84,7 @@ def run(args):
        
        
         if args.bwe.generator.variant=="unet2d":
-            xF =do_stft(x,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
+            xF =utils.do_stft(x,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
        
             with torch.no_grad():
                 y_gF = gener_model(xF)
