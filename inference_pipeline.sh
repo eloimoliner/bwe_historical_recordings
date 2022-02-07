@@ -4,11 +4,11 @@ module load anaconda
 source activate /scratch/work/molinee2/conda_envs/bwe_test
 
 
-PATH_CKPT=experiments_bwe/piano/checkpoint_149
-#PATH_CKPT=experiments_bwe/strings/checkpoint_119
-#PATH_CKPT=experiments_bwe/orchestra/checkpoint_109
+PATH_CKPT=experiments_bwe/piano/checkpoint_piano
+#PATH_CKPT=experiments_bwe/strings/checkpoint_strings
+#PATH_CKPT=experiments_bwe/orchestra/checkpoint_orchestra
 
-PATH_CKPT_DEN=experiments_denoiser/pretrained_model/checkpoint_29
+PATH_CKPT_DEN=experiments_denoiser/pretrained_model/checkpoint_denoiser
 
 #Some name to define the experiment
 name=$1
