@@ -1,4 +1,4 @@
-name: /scratch/work/molinee2/conda_envs/2022_torchot
+name: historical_bwe_pytorch
 channels:
   - pytorch
   - defaults
@@ -110,4 +110,4 @@ dependencies:
     - urllib3==1.26.8
     - werkzeug==2.0.2
     - zipp==3.7.0
-prefix: /scratch/work/molinee2/conda_envs/2022_torchot
+prefix: historical_bwe_pytorch
