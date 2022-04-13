@@ -455,7 +455,7 @@ class ValDataset(torch.utils.data.Dataset):
         
         scales=np.random.uniform(-6,4,len(self.segments_clean))
 
-        self.segments_clean[i]=10.0**(scales[i]/10.0) *self.segments_clean[i]
+        self.segments_clean=10.0**(scales/10.0) *self.segments_clean
 
     def __len__(self):
         return len(self.segments_clean)
