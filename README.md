@@ -40,18 +40,20 @@ Otherwise, run the following commands to clone the repository and install the pr
 ## Inference
 
 This repository includes a denoiser and a bandwidth extension models separatedly.
-
-### Denoiser
+    
+### Apply Denoiser + BWE pipeline
 
     bash inference_pipeline.sh "file name"
     
-### Denoiser + BWE pipeline
+### Apply only BWE or only Denoiser
 
-    bash inference_pipeline.sh "file name"
+    You will need to modify inference_pipeline.sh. TODO
     
-A ".wav" file with the denoised version, as well as the residual noise and the original signal in "mono", will be generated in the same directory as the input file.
+A ".wav" file with the enhanced version, as well as the residual noise and the original signal in "mono", will be generated in the same directory as the input file.
+
 ## Training
 TODO
+
 ## Remarks
 The models included in this repository work at the reduced sampling rate of 22050Hz. 
 
