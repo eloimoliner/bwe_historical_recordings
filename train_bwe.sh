@@ -24,12 +24,12 @@ export TORCH_USE_RTLD_GLOBAL=YES
 #experiment number
 n=3
 #n=2
-#iteration=`sed -n "${n} p" iteration_parameters_bwe.txt`      # Get n-th line (2-indexed) of the file
+iteration=`sed -n "${n} p" iteration_parameters_bwe.txt`      # Get n-th line (2-indexed) of the file
 
 
 PATH_EXPERIMENT=experiments_bwe/${n}
 mkdir $PATH_EXPERIMENT
 
 
-python train_bwe.py path_experiment="$PATH_EXPERIMENT"   #override here the desired parameters using hydra
-#python train_NLD.py path_experiment="$PATH_EXPERIMENT"  $iteration 
+#python train_bwe.py path_experiment="$PATH_EXPERIMENT"   #override here the desired parameters using hydra
+python train_bwe.py path_experiment="$PATH_EXPERIMENT"  $iteration 
